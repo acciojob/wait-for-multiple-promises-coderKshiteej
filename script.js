@@ -1,44 +1,42 @@
-//your JS code here. If required.
 const output = document.getElementById("output");
+const loadingRow = document.getElementById("loading");
 
-// Three promises resolving after random times (1–3 seconds)
-const p1 = new Promise((resolve) => {
-  const t = Math.random() * 2 + 1; // 1-3 seconds
-  setTimeout(() => resolve({ name: "Promise 1", time: t.toFixed(3) }), t * 1000);
-});
+// Generate a promise that resolves after 1–3 seconds
+function createPromise(index) {
+  return new Promise((resolve) => {
+    const time = (Math.random() * 2 + 1).toFixed(3); // between 1 and 3
+    setTimeout(() => resolve({ index, time }), time * 1000);
+  });
+}
 
-const p2 = new Promise((resolve) => {
-  const t = Math.random() * 2 + 1;
-  setTimeout(() => resolve({ name: "Promise 2", time: t.toFixed(3) }), t * 1000);
-});
+const p1 = createPromise(1);
+const p2 = createPromise(2);
+const p3 = createPromise(3);
 
-const p3 = new Promise((resolve) => {
-  const t = Math.random() * 2 + 1;
-  setTimeout(() => resolve({ name: "Promise 3", time: t.toFixed(3) }), t * 1000);
-});
-
-// When ALL promises finish
 Promise.all([p1, p2, p3]).then((results) => {
-  // Sort by time taken (ascending)
-  results.sort((a, b) => a.time - b.time);
+  // remove loading row
+  loadingRow.remove();
 
-  results.forEach((res) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${res.name}</td>
-      <td>${res.time}</td>
+  let maxTime = 0;
+
+  results.forEach((result) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>Promise ${result.index}</td>
+      <td>${result.time}</td>
     `;
-    output.appendChild(row);
+
+    output.appendChild(tr);
+
+    maxTime = Math.max(maxTime, Number(result.time));
   });
 
-  // Add TOTAL TIME
-  const totalTime =
-    results.reduce((sum, r) => sum + Number(r.time), 0).toFixed(3);
-
-  const totalRow = document.createElement("tr");
-  totalRow.innerHTML = `
-    <td><b>Total</b></td>
-    <td><b>${totalTime}</b></td>
+  // Add Total row
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>Total</td>
+    <td>${maxTime.toFixed(3)}</td>
   `;
-  output.appendChild(totalRow);
+  output.appendChild(tr);
 });
